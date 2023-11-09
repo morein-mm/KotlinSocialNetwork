@@ -12,13 +12,13 @@ class WallServiceTest {
 
     @Test
     fun add() {
-        val post1 = WallService.add(Post(text = "post1_text"))
+        val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
         assertNotEquals(0, post1.id)
     }
 
     @Test
     fun updateExistingPost() {
-        val post1 = WallService.add(Post(text = "post1_text"))
+        val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
         val postUpdated = post1.copy(text = "post1_updatedText")
         val result = WallService.update(postUpdated)
         assertEquals(true, result)
@@ -26,7 +26,7 @@ class WallServiceTest {
 
     @Test
     fun updateNonExistingPost() {
-        val post1 = WallService.add(Post(text = "post1_text"))
+        val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
         val postUpdated = post1.copy(id = 10, text = "post1_updatedText")
         val result = WallService.update(postUpdated)
         assertEquals(false, result)
