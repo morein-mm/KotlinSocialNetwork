@@ -1,8 +1,18 @@
+import kotlin.reflect.typeOf
+
 //import org.graalvm.compiler.asm.sparc.SPARCAssembler.Bpcc
 
 fun main() {
-    val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
-    val post2 = WallService.add(Post(text = "post2_text", copyHistory = null))
+    val attachments = mapOf(
+        Audio() to AudioAttachment(id=1),
+        Video() to VideoAttachment(id=1, image=null, firstFrame = null)
+    )
+    val post1 = WallService.add(Post(text = "post1_text",
+        copyHistory = null,
+        attachments = attachments))
+    val post2 = WallService.add(Post(text = "post2_text",
+        copyHistory = null,
+        attachments = attachments))
     val post2Updated = post2.copy(text = "post2_text_updated")
     WallService.update(post2Updated)
     WallService.read()
@@ -26,7 +36,7 @@ data class Post(
     val views: Views = Views(),
     val postType: String = "post",
     //postSource - нет описания в документации
-    //attachments
+    val attachments: Map<Attachment, Attachment>?,
     val geo: Geo? = Geo(),
     val signerID: Int = 0,
     val copyHistory: Array<Post>?,
@@ -76,6 +86,109 @@ data class Donut(
     val canPublishFreeCopy: Boolean = false,
     val editMode: String = ""
 )
+
+interface Attachment {
+    val type: String;
+}
+
+open class Audio(
+    override val type: String = "Audio",
+): Attachment
+
+class AudioAttachment(
+    val id: Int = 0,
+    val ownerID: Int = 0,
+    val artist: String = "",
+    val title: String = "",
+    val duration: Int = 0,
+    val url: String = "",
+    val lyricsID: Int = 0,
+    val albumID: Int = 0,
+    val genreID: Int = 0,
+    val date: Int = 0,
+    val noSearch: Boolean = false,
+    val isHq: Boolean = false
+): Audio()
+
+open class Photo(
+    override val type: String = "Photo",
+): Attachment
+
+class PhotoAttachment(
+    val id: Int = 0,
+    val albumID: Int = 0,
+    val ownerID: Int = 0,
+    val userID: Int = 0,
+    val text: String = "",
+    val date: Int = 0,
+    val sizes: Array<PhotoSizes>?,
+    val width: Int = 0,
+    val height: Int = 0
+): Photo()
+
+class PhotoSizes(
+    val type: String = "",
+    val url: String = "",
+    val width: Int = 0,
+    val height: Int = 0
+)
+
+open class Video(
+    override val type: String = "Video",
+): Attachment
+
+class VideoAttachment(
+    val id: Int = 0,
+    val ownerID: Int = 0,
+    val title: String = "",
+    val description: String = "",
+    val duration: Int = 0,
+    val image: Array<VideoImage>?,
+    val firstFrame: Array<VideoFirstFrame>?,
+    val date: Int = 0,
+    val addingDate: Int = 0,
+    val views: Int = 0,
+    val localViews: Int = 0,
+    val comments: Int = 0,
+    val player: String = "",
+    val platform: String = "",
+    val canAdd: Boolean = false,
+    val isPrivate: Boolean = false,
+    val accessKey: String = "",
+    val isFavorite: Boolean = false,
+    val canComment: Boolean = false,
+    val canEdit: Boolean = false,
+    val canLike: Boolean = false,
+    val canRepost: Boolean = false,
+    val canSubscribe: Boolean = false,
+    val canAddToFaves: Boolean = false,
+    val canAttachLink: Boolean = false,
+    val width: Int = 0,
+    val height: Int = 0,
+    val userID: Int = 0,
+    val converting: Boolean = false,
+    val added: Boolean = false,
+    val isSubscribed: Boolean = false,
+    val repeat: Int = 0,
+   // val type: String = "",
+    val balance: Int = 0,
+    val liveStatus: String = "",
+): Video()
+
+class VideoImage(
+    val height: Int = 0,
+    val url: String = "",
+    val width: Int = 0,
+    val withPadding: Int = 0
+)
+
+class VideoFirstFrame(
+    val height: Int = 0,
+    val url: String = "",
+    val width: Int = 0
+)
+
+
 
 object WallService {
     private var posts = emptyArray<Post>()
