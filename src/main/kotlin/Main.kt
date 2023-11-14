@@ -3,9 +3,9 @@ import kotlin.reflect.typeOf
 //import org.graalvm.compiler.asm.sparc.SPARCAssembler.Bpcc
 
 fun main() {
-    val attachments = mapOf(
-        Audio() to AudioAttachment(id=1),
-        Video() to VideoAttachment(id=1, image=null, firstFrame = null)
+    val attachments = arrayListOf(
+        AudioAttachment(),
+        VideoAttachment()
     )
     val post1 = WallService.add(Post(text = "post1_text",
         copyHistory = null,
@@ -36,7 +36,7 @@ data class Post(
     val views: Views = Views(),
     val postType: String = "post",
     //postSource - нет описания в документации
-    val attachments: Map<Attachment, Attachment>?,
+    val attachments: List<Attachment>?,
     val geo: Geo? = Geo(),
     val signerID: Int = 0,
     val copyHistory: Array<Post>?,
@@ -91,11 +91,12 @@ interface Attachment {
     val type: String;
 }
 
-open class Audio(
+data class AudioAttachment(
     override val type: String = "Audio",
+    val audio: Audio = Audio()
 ): Attachment
 
-class AudioAttachment(
+data class Audio(
     val id: Int = 0,
     val ownerID: Int = 0,
     val artist: String = "",
@@ -108,13 +109,14 @@ class AudioAttachment(
     val date: Int = 0,
     val noSearch: Boolean = false,
     val isHq: Boolean = false
-): Audio()
+)
 
-open class Photo(
+data class PhotoAttachment(
     override val type: String = "Photo",
+    val photo: Photo = Photo(sizes = null)
 ): Attachment
 
-class PhotoAttachment(
+data class Photo(
     val id: Int = 0,
     val albumID: Int = 0,
     val ownerID: Int = 0,
@@ -124,7 +126,7 @@ class PhotoAttachment(
     val sizes: Array<PhotoSizes>?,
     val width: Int = 0,
     val height: Int = 0
-): Photo()
+)
 
 class PhotoSizes(
     val type: String = "",
@@ -133,11 +135,12 @@ class PhotoSizes(
     val height: Int = 0
 )
 
-open class Video(
+data class VideoAttachment(
     override val type: String = "Video",
+    val video: Video = Video(image = null, firstFrame = null)
 ): Attachment
 
-class VideoAttachment(
+data class Video(
     val id: Int = 0,
     val ownerID: Int = 0,
     val title: String = "",
@@ -173,7 +176,7 @@ class VideoAttachment(
    // val type: String = "",
     val balance: Int = 0,
     val liveStatus: String = "",
-): Video()
+)
 
 class VideoImage(
     val height: Int = 0,

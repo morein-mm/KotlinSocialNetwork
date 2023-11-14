@@ -12,9 +12,9 @@ class WallServiceTest {
 
     @Test
     fun add() {
-        val attachments = mapOf(
-            Audio() to AudioAttachment(id=1),
-            Video() to VideoAttachment(id=1, image=null, firstFrame = null)
+        val attachments = arrayListOf(
+            AudioAttachment(),
+            VideoAttachment()
         )
         val post1 = WallService.add(Post(text = "post1_text",
             copyHistory = null,
@@ -24,9 +24,9 @@ class WallServiceTest {
 
     @Test
     fun updateExistingPost() {
-        val attachments = mapOf(
-            Audio() to AudioAttachment(id=1),
-            Video() to VideoAttachment(id=1, image=null, firstFrame = null)
+        val attachments = arrayListOf(
+            AudioAttachment(),
+            VideoAttachment()
         )
         val post1 = WallService.add(Post(text = "post1_text",
             copyHistory = null,
@@ -38,9 +38,9 @@ class WallServiceTest {
 
     @Test
     fun updateNonExistingPost() {
-        val attachments = mapOf(
-            Audio() to AudioAttachment(id=1),
-            Video() to VideoAttachment(id=1, image=null, firstFrame = null)
+        val attachments = arrayListOf(
+            AudioAttachment(),
+            VideoAttachment()
         )
         val post1 = WallService.add(Post(text = "post1_text",
             copyHistory = null,
