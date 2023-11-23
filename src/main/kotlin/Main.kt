@@ -1,3 +1,4 @@
+import java.lang.RuntimeException
 import kotlin.reflect.typeOf
 
 //import org.graalvm.compiler.asm.sparc.SPARCAssembler.Bpcc
@@ -9,12 +10,19 @@ fun main() {
     )
     val post1 = WallService.add(Post(text = "post1_text",
         copyHistory = null,
+        comments = null,
         attachments = attachments))
     val post2 = WallService.add(Post(text = "post2_text",
         copyHistory = null,
+        comments = null,
         attachments = attachments))
     val post2Updated = post2.copy(text = "post2_text_updated")
     WallService.update(post2Updated)
+    //WallService.read()
+    WallService.createComment(1, Comment(text = "FirstComment"))
+    WallService.createComment(2, Comment(text = "Comment to second post"))
+    WallService.createComment(1, Comment(text = "SecondComment"))
+    //WallService.createComment(10, Comment(text = "CommentToUnexistingPost"))
     WallService.read()
 
 }
@@ -30,7 +38,7 @@ data class Post(
     val replyOwnerID: Int = 0,
     val replyPostID: Int = 0,
     val friendsOnly: Boolean = false,
-    val comments: Comments = Comments(),
+    val comments: Array<Comment>?,
     val likes: Likes = Likes(0, false, true, true),
     val reposts: Reposts = Reposts(),
     val views: Views = Views(),
@@ -57,12 +65,12 @@ data class Likes(
     val canPublish: Boolean
 )
 
-data class Comments(
-    val count: Int = 0,
-    val canPost: Boolean = true,
-    val groupsCanPost: Boolean = true,
-    val canClose: Boolean = true,
-    val canOpen: Boolean = true
+data class Comment(
+    val id: Int = 0,
+    val fromID: Int = 0,
+    val date: Int = 0,
+    val text: String = "",
+    val replyToUser: Int = 0,
 )
 
 data class Reposts(
@@ -195,7 +203,10 @@ class VideoFirstFrame(
 
 object WallService {
     private var posts = emptyArray<Post>()
+    private var comments = emptyArray<Comment>()
     private var nextID = 1
+    private var nextCommentID = 1
+
 
     fun add(post: Post): Post {
         posts += post.copy(id = nextID)
@@ -216,13 +227,43 @@ object WallService {
     fun clear() {
         posts = emptyArray()
         nextID = 1
+        comments = emptyArray()
+        nextCommentID = 1
     }
+
+
+    fun getPostByID(postID: Int) : Post {
+        for ((index, post) in posts.withIndex()) {
+            if (post.id == postID) {
+                return post
+            }
+        }
+        throw PostNotFoundException("Post not found")
+    }
+
+    fun createComment(postId: Int, comment: Comment): Comment {
+        val post = getPostByID(postId)
+        update(post.copy(comments = post.comments?.plus(comment.copy(id = nextCommentID)) ?: arrayOf(comment.copy(id = nextCommentID))))
+        nextCommentID++
+        return getPostByID(postId).comments?.last() ?: throw NoCommentsException("No comments in post")
+   }
+
 
     fun read() {
         for (post in posts) {
-            println(post.id)
+            println("Пост id = " + post.id)
             println(post.text)
+            println("комментарии:")
+            post.comments?.forEach {
+                println(it.id)
+                println(it.text)
+            }
+            println("--------")
+
         }
     }
 
 }
+
+class PostNotFoundException(message: String) : RuntimeException(message)
+class NoCommentsException(message: String) : RuntimeException(message)
