@@ -1,6 +1,8 @@
+//import org.graalvm.compiler.asm.sparc.SPARCAssembler.Bpcc
+
 fun main() {
-    val post1 = WallService.add(Post(text = "post1_text"))
-    val post2 = WallService.add(Post(text = "post2_text"))
+    val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
+    val post2 = WallService.add(Post(text = "post2_text", copyHistory = null))
     val post2Updated = post2.copy(text = "post2_text_updated")
     WallService.update(post2Updated)
     WallService.read()
@@ -13,16 +15,67 @@ data class Post(
     val ownerID: Int = 0,
     val fromID: Int = 0,
     val createdBy: Int = 0,
+    val date: Int = 0,
     val text: String,
     val replyOwnerID: Int = 0,
     val replyPostID: Int = 0,
     val friendsOnly: Boolean = false,
+    val comments: Comments = Comments(),
     val likes: Likes = Likes(0, false, true, true),
+    val reposts: Reposts = Reposts(),
+    val views: Views = Views(),
     val postType: String = "post",
-    val signerID: Int = 0
+    //postSource - нет описания в документации
+    //attachments
+    val geo: Geo? = Geo(),
+    val signerID: Int = 0,
+    val copyHistory: Array<Post>?,
+    val canPin: Boolean = true,
+    val canDelete: Boolean = true,
+    val canEdit: Boolean = true,
+    val isPinned: Boolean = false,
+    val markedAsAds: Boolean = false,
+    val isFavourite: Boolean = false,
+    val donut: Donut? = Donut(),
+    val postponedID: Int = 0
 )
 
-data class Likes(val count: Int, val userLikes: Boolean, val canLike: Boolean, val canPublish: Boolean)
+data class Likes(
+    val count: Int,
+    val userLikes: Boolean,
+    val canLike: Boolean,
+    val canPublish: Boolean
+)
+
+data class Comments(
+    val count: Int = 0,
+    val canPost: Boolean = true,
+    val groupsCanPost: Boolean = true,
+    val canClose: Boolean = true,
+    val canOpen: Boolean = true
+)
+
+data class Reposts(
+    val count: Int = 0,
+    val userReposted: Boolean = false
+)
+
+data class Views(
+    val count: Int = 0
+)
+
+data class Geo(
+    val type: String = "",
+    val coordinates: String = "",
+    val place: String = ""
+)
+data class Donut(
+    val isDonut: Boolean = false,
+    val paidDuration: Int = 0,
+    val placeholder: String = "",
+    val canPublishFreeCopy: Boolean = false,
+    val editMode: String = ""
+)
 
 object WallService {
     private var posts = emptyArray<Post>()
