@@ -10,11 +10,9 @@ fun main() {
     )
     val post1 = WallService.add(Post(text = "post1_text",
         copyHistory = null,
-        comments = null,
         attachments = attachments))
     val post2 = WallService.add(Post(text = "post2_text",
         copyHistory = null,
-        comments = null,
         attachments = attachments))
     val post2Updated = post2.copy(text = "post2_text_updated")
     WallService.update(post2Updated)
@@ -38,7 +36,7 @@ data class Post(
     val replyOwnerID: Int = 0,
     val replyPostID: Int = 0,
     val friendsOnly: Boolean = false,
-    val comments: Array<Comment>?,
+    //val comments: Array<Comment>?,
     val likes: Likes = Likes(0, false, true, true),
     val reposts: Reposts = Reposts(),
     val views: Views = Views(),
@@ -243,27 +241,28 @@ object WallService {
 
     fun createComment(postId: Int, comment: Comment): Comment {
         val post = getPostByID(postId)
-        update(post.copy(comments = post.comments?.plus(comment.copy(id = nextCommentID)) ?: arrayOf(comment.copy(id = nextCommentID))))
+        comments += comment.copy(id = nextCommentID)
         nextCommentID++
-        return getPostByID(postId).comments?.last() ?: throw NoCommentsException("No comments in post")
+        return comments.last()
    }
 
 
     fun read() {
+        println("ПОСТЫ")
         for (post in posts) {
-            println("Пост id = " + post.id)
-            println(post.text)
-            println("комментарии:")
-            post.comments?.forEach {
-                println(it.id)
-                println(it.text)
-            }
+            println("id: " + post.id)
+            println("текст: " + post.text)
             println("--------")
-
+        }
+        println()
+        println("КОММЕНТАРИИ")
+        for (comment in comments) {
+            println("id: " + comment.id)
+            println("текст: " + comment.text)
+            println("--------")
         }
     }
 
 }
 
 class PostNotFoundException(message: String) : RuntimeException(message)
-class NoCommentsException(message: String) : RuntimeException(message)
