@@ -12,13 +12,27 @@ class WallServiceTest {
 
     @Test
     fun add() {
-        val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
+        val attachments = arrayListOf(
+            AudioAttachment(),
+            VideoAttachment()
+        )
+        val post1 = WallService.add(Post(text = "post1_text",
+            copyHistory = null,
+            comments = null,
+            attachments = attachments))
         assertNotEquals(0, post1.id)
     }
 
     @Test
     fun updateExistingPost() {
-        val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
+        val attachments = arrayListOf(
+            AudioAttachment(),
+            VideoAttachment()
+        )
+        val post1 = WallService.add(Post(text = "post1_text",
+            copyHistory = null,
+            comments = null,
+            attachments = attachments))
         val postUpdated = post1.copy(text = "post1_updatedText")
         val result = WallService.update(postUpdated)
         assertEquals(true, result)
@@ -26,9 +40,31 @@ class WallServiceTest {
 
     @Test
     fun updateNonExistingPost() {
-        val post1 = WallService.add(Post(text = "post1_text", copyHistory = null))
+        val attachments = arrayListOf(
+            AudioAttachment(),
+            VideoAttachment()
+        )
+        val post1 = WallService.add(Post(text = "post1_text",
+            copyHistory = null,
+            comments = null,
+            attachments = attachments))
         val postUpdated = post1.copy(id = 10, text = "post1_updatedText")
         val result = WallService.update(postUpdated)
         assertEquals(false, result)
+    }
+
+    @Test(expected = PostNotFoundException::class)
+    fun createCommentShouldThrow() {
+        WallService.createComment(1, Comment(text = "FirstComment"))
+    }
+
+    @Test
+    fun createCommentShouldntThrow() {
+        val post1 = WallService.add(Post(text = "post1_text",
+            copyHistory = null,
+            comments = null,
+            attachments = null))
+        val result = WallService.createComment(1, Comment(text = "FirstComment")).id
+        assertEquals(1, result)
     }
 }
