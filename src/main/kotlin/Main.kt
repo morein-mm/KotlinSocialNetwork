@@ -21,6 +21,7 @@ fun main() {
     WallService.createComment(2, Comment(text = "Comment to second post"))
     WallService.createComment(1, Comment(text = "SecondComment"))
     //WallService.createComment(10, Comment(text = "CommentToUnexistingPost"))
+    WallService.reportComment(1, 1, 7)
     WallService.read()
 
 }
@@ -197,6 +198,12 @@ class VideoFirstFrame(
     val width: Int = 0
 )
 
+data class ReportComment(
+    val ownerID: Int,
+    val commentID: Int,
+    val reason: Int
+)
+
 
 
 object WallService {
@@ -204,7 +211,29 @@ object WallService {
     private var comments = emptyArray<Comment>()
     private var nextID = 1
     private var nextCommentID = 1
+    private var reportComments = emptyArray<ReportComment>()
 
+
+    fun reportComment(ownerID: Int, commentID: Int, reason: Int) {
+        getCommentByID(commentID)
+        if (reason !in 0..8) {
+            throw NonExistentReasonException("Non-existent reason")
+        }
+        reportComments += ReportComment(ownerID, commentID, reason)
+    }
+
+    fun getCommentByID(commentID: Int) : Comment {
+        for ((index, comment) in comments.withIndex()) {
+            if (comment.id == commentID) {
+                return comment
+            }
+        }
+        throw CommentNotFoundException("Comment not found")
+    }
+
+    fun getReportCommentsCount() : Int {
+        return reportComments.count()
+    }
 
     fun add(post: Post): Post {
         posts += post.copy(id = nextID)
@@ -227,6 +256,7 @@ object WallService {
         nextID = 1
         comments = emptyArray()
         nextCommentID = 1
+        reportComments = emptyArray()
     }
 
 
@@ -261,8 +291,20 @@ object WallService {
             println("текст: " + comment.text)
             println("--------")
         }
+        println()
+        println("РЕПОРТЫ")
+        for (report in reportComments) {
+            println("ownerId: " + report.ownerID)
+            println("commentId: " + report.commentID)
+            println("reason: " + report.reason)
+            println("--------")
+        }
     }
 
 }
 
 class PostNotFoundException(message: String) : RuntimeException(message)
+
+class CommentNotFoundException(message: String) : RuntimeException(message)
+
+class NonExistentReasonException(message: String) : RuntimeException(message)

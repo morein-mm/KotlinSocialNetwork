@@ -63,4 +63,28 @@ class WallServiceTest {
         val result = WallService.createComment(1, Comment(text = "FirstComment")).id
         assertEquals(1, result)
     }
+
+    @Test(expected = CommentNotFoundException::class)
+    fun reportCommentCommentNotFoundException() {
+        WallService.reportComment(1, 1, 7)
+    }
+
+    @Test(expected = NonExistentReasonException::class)
+    fun reportCommentNonExistentReasonException() {
+        val post1 = WallService.add(Post(text = "post1_text",
+            copyHistory = null,
+            attachments = null))
+        WallService.createComment(1, Comment(text = "FirstComment")).id
+        WallService.reportComment(1, 1, 60)
+    }
+    @Test
+    fun reportCommentShouldntThrow() {
+        val post1 = WallService.add(Post(text = "post1_text",
+            copyHistory = null,
+            attachments = null))
+        WallService.createComment(1, Comment(text = "FirstComment")).id
+        WallService.reportComment(1, 1, 6)
+        val result = WallService.getReportCommentsCount()
+        assertEquals(1, result)
+    }
 }
